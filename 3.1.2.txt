@@ -1,0 +1,15 @@
+CREATE TABLE users (
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	username VARCHAR(32) NOT NULL,
+	password VARCHAR(32) NOT NULL,
+	passwordhash BLOB(16) NOT NULL,
+	PRIMARY KEY (id)
+);
+CREATE UNIQUE INDEX username ON users (username);
+CREATE TABLE history(
+	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	user_id INT UNSIGNED NOT NULL,
+	query VARCHAR(2048) NOT NULL,
+	PRIMARY KEY (id)
+);
+CREATE INDEX user_id ON history (user_id);
